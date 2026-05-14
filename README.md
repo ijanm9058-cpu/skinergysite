@@ -1,1 +1,1033 @@
 # skinergysite
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKINERGY — AI-Powered Burn Detection & Care</title>
+  <meta name="description" content="SKINERGY uses AI, thermal sensing, and IoT to detect burn severity and deliver instant first-aid guidance. The future of emergency skin care." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #E3DFCE;
+      --steel: #94B1C8;
+      --crimson: #4C050C;
+      --void: #1A0905;
+      --glow-steel: rgba(148,177,200,0.35);
+      --glow-crimson: rgba(76,5,12,0.5);
+      --glass: rgba(227,223,206,0.06);
+      --glass-border: rgba(148,177,200,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--void);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CUSTOM CURSOR */
+    .cursor { position: fixed; width: 8px; height: 8px; background: var(--steel); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s; mix-blend-mode: screen; }
+    .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(148,177,200,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all 0.18s ease; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--void); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 2px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 24px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(26,9,5,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600; letter-spacing: 6px;
+      color: var(--cream); text-decoration: none;
+    }
+    .nav-logo span { color: var(--steel); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { color: rgba(227,223,206,0.6); text-decoration: none; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; transition: color 0.3s; }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-cta {
+      padding: 10px 24px; border: 1px solid var(--steel); color: var(--steel);
+      background: transparent; font-family: 'DM Sans', sans-serif;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s;
+    }
+    .nav-cta:hover { background: var(--steel); color: var(--void); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; background: none; border: none; }
+    .hamburger span { width: 22px; height: 1px; background: var(--cream); transition: all 0.3s; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; padding: 120px 48px 80px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.18;
+      animation: pulse 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 600px; height: 600px; background: var(--crimson); top: -100px; right: -100px; animation-delay: 0s; }
+    .orb-2 { width: 400px; height: 400px; background: var(--steel); bottom: 0; left: -80px; animation-delay: -3s; }
+    .orb-3 { width: 250px; height: 250px; background: var(--crimson); top: 40%; left: 40%; animation-delay: -5s; }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:0.18} 50%{transform:scale(1.15);opacity:0.28} }
+
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+      max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border: 1px solid var(--glass-border);
+      background: var(--glass); backdrop-filter: blur(10px);
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--steel); margin-bottom: 32px;
+    }
+    .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--steel); border-radius: 50%; animation: blink 2s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(52px,6vw,88px); font-weight: 300; line-height: 1.0;
+      letter-spacing: -1px; margin-bottom: 24px;
+    }
+    .hero-title em { font-style: italic; color: var(--steel); }
+    .hero-title .accent { color: var(--crimson); text-shadow: 0 0 40px rgba(76,5,12,0.8); }
+
+    .hero-sub { font-size: 15px; line-height: 1.8; color: rgba(227,223,206,0.6); max-width: 440px; margin-bottom: 40px; }
+
+    .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      padding: 14px 32px; background: var(--crimson); color: var(--cream);
+      border: none; font-family: 'DM Sans', sans-serif;
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .btn-primary::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(76,5,12,0.5); }
+    .btn-primary:hover::after { opacity: 1; }
+    .btn-outline {
+      padding: 14px 32px; background: transparent; color: var(--cream);
+      border: 1px solid rgba(227,223,206,0.3);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s;
+    }
+    .btn-outline:hover { border-color: var(--steel); color: var(--steel); transform: translateY(-2px); }
+
+    .hero-stats { display: flex; gap: 32px; margin-top: 48px; }
+    .stat { border-left: 1px solid rgba(148,177,200,0.3); padding-left: 16px; }
+    .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--steel); }
+    .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(227,223,206,0.4); margin-top: 2px; }
+
+    /* DEVICE MOCKUP HERO */
+    .hero-device { position: relative; display: flex; justify-content: center; align-items: center; }
+    .device-ring {
+      position: absolute; border-radius: 50%; border: 1px solid;
+      animation: spin-ring 20s linear infinite;
+    }
+    .device-ring-1 { width: 400px; height: 400px; border-color: rgba(148,177,200,0.12); }
+    .device-ring-2 { width: 300px; height: 300px; border-color: rgba(76,5,12,0.3); animation-direction: reverse; animation-duration: 15s; }
+    .device-ring-3 { width: 500px; height: 500px; border-color: rgba(148,177,200,0.06); animation-duration: 30s; }
+    @keyframes spin-ring { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    .device-core {
+      width: 220px; height: 220px; border-radius: 30px;
+      background: linear-gradient(135deg, rgba(148,177,200,0.15), rgba(76,5,12,0.2));
+      border: 1px solid var(--glass-border); backdrop-filter: blur(20px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; position: relative; z-index: 2;
+      box-shadow: 0 0 60px rgba(76,5,12,0.3), 0 0 120px rgba(148,177,200,0.1);
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
+
+    .device-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--steel), rgba(148,177,200,0.4));
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    }
+    .device-icon svg { width: 32px; height: 32px; fill: var(--void); }
+    .device-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--steel); }
+    .device-status { font-size: 9px; color: rgba(227,223,206,0.4); letter-spacing: 1px; }
+
+    .device-data-points {
+      position: absolute; inset: 0;
+    }
+    .data-point {
+      position: absolute; background: var(--glass); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px); padding: 10px 14px; white-space: nowrap;
+    }
+    .data-point:nth-child(1) { top: 10%; right: -10%; animation: float 5s ease-in-out infinite; }
+    .data-point:nth-child(2) { bottom: 20%; left: -12%; animation: float 7s ease-in-out infinite; animation-delay: -2s; }
+    .data-point:nth-child(3) { top: 55%; right: -14%; animation: float 6s ease-in-out infinite; animation-delay: -4s; }
+    .dp-label { font-size: 9px; color: rgba(227,223,206,0.4); letter-spacing: 1px; text-transform: uppercase; }
+    .dp-value { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--steel); margin-top: 2px; }
+
+    /* SECTION BASE */
+    section { padding: 120px 48px; }
+    .section-tag {
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--steel); margin-bottom: 16px; display: block;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 4vw, 60px); font-weight: 300; line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .section-title em { font-style: italic; color: var(--steel); }
+    .max-w { max-width: 1200px; margin: 0 auto; }
+
+    /* ABOUT */
+    .about { background: linear-gradient(180deg, var(--void), rgba(76,5,12,0.08), var(--void)); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-text p { color: rgba(227,223,206,0.6); line-height: 1.9; font-size: 15px; margin-bottom: 20px; }
+    .about-highlights { display: flex; flex-direction: column; gap: 1px; margin-top: 40px; }
+    .highlight-item {
+      display: flex; align-items: center; gap: 16px; padding: 20px 0;
+      border-bottom: 1px solid rgba(148,177,200,0.1);
+    }
+    .highlight-num { font-family: 'Space Mono', monospace; font-size: 11px; color: rgba(148,177,200,0.4); min-width: 24px; }
+    .highlight-text { font-size: 14px; color: rgba(227,223,206,0.7); }
+
+    .about-visual {
+      position: relative; height: 460px; display: flex; align-items: center; justify-content: center;
+    }
+    .circuit-svg { width: 100%; height: 100%; position: absolute; opacity: 0.2; }
+    .about-card {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px); padding: 40px; position: relative; z-index: 1;
+      width: 280px;
+    }
+    .about-card-icon { width: 48px; height: 48px; background: rgba(76,5,12,0.5); border: 1px solid rgba(76,5,12,0.8); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .about-card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; margin-bottom: 10px; }
+    .about-card-text { font-size: 13px; color: rgba(227,223,206,0.5); line-height: 1.7; }
+
+    /* FEATURES */
+    .features { position: relative; }
+    .features-header { text-align: center; margin-bottom: 80px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--glass-border); }
+    .feature-card {
+      background: var(--void); padding: 48px 36px;
+      transition: all 0.4s; position: relative; overflow: hidden;
+      cursor: none;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(148,177,200,0.05), transparent);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .feature-card:hover { background: rgba(148,177,200,0.04); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover .feature-icon { border-color: var(--steel); box-shadow: 0 0 30px rgba(148,177,200,0.2); }
+
+    .feature-num { font-family: 'Space Mono', monospace; font-size: 10px; color: rgba(148,177,200,0.3); margin-bottom: 24px; }
+    .feature-icon {
+      width: 52px; height: 52px; border: 1px solid rgba(148,177,200,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; transition: all 0.4s;
+    }
+    .feature-icon svg { width: 24px; height: 24px; stroke: var(--steel); fill: none; stroke-width: 1.5; }
+    .feature-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; margin-bottom: 12px; }
+    .feature-desc { font-size: 13px; color: rgba(227,223,206,0.5); line-height: 1.7; }
+
+    /* SHOWCASE */
+    .showcase { background: radial-gradient(ellipse at center, rgba(76,5,12,0.12) 0%, var(--void) 70%); }
+    .showcase-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
+    .showcase-display {
+      position: relative; height: 520px; display: flex; align-items: center; justify-content: center;
+    }
+    .showcase-glow {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(76,5,12,0.5), transparent 70%);
+      filter: blur(40px);
+    }
+    .showcase-device {
+      position: relative; z-index: 2;
+      width: 260px; height: 260px; border-radius: 36px;
+      background: linear-gradient(145deg, rgba(148,177,200,0.12), rgba(26,9,5,0.8), rgba(76,5,12,0.15));
+      border: 1px solid rgba(148,177,200,0.2);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 80px rgba(76,5,12,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; animation: float 7s ease-in-out infinite;
+      transition: transform 0.3s; cursor: none;
+    }
+    .showcase-device:hover { transform: scale(1.04) translateY(-8px); }
+
+    .cam-circle {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(76,5,12,0.8), rgba(26,9,5,0.9));
+      border: 2px solid rgba(148,177,200,0.3);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 30px rgba(76,5,12,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    .cam-circle svg { width: 32px; height: 32px; stroke: var(--steel); fill: none; stroke-width: 1.5; }
+
+    .thermal-bars { display: flex; gap: 4px; align-items: flex-end; height: 36px; }
+    .t-bar {
+      width: 6px; background: linear-gradient(180deg, var(--steel), var(--crimson));
+      border-radius: 2px; animation: bar-anim 2s ease-in-out infinite;
+    }
+    .t-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+    .t-bar:nth-child(2) { height: 70%; animation-delay: 0.1s; }
+    .t-bar:nth-child(3) { height: 100%; animation-delay: 0.2s; background: var(--crimson); }
+    .t-bar:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+    .t-bar:nth-child(5) { height: 55%; animation-delay: 0.4s; }
+    .t-bar:nth-child(6) { height: 30%; animation-delay: 0.5s; }
+    @keyframes bar-anim { 0%,100%{transform:scaleY(1);opacity:0.8} 50%{transform:scaleY(1.2);opacity:1} }
+
+    .showcase-badge {
+      position: absolute; background: var(--glass); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px); padding: 12px 18px; z-index: 3;
+    }
+    .showcase-badge:nth-child(3) { top: 60px; right: -20px; }
+    .showcase-badge:nth-child(4) { bottom: 100px; left: -30px; }
+    .showcase-badge:nth-child(5) { top: 50%; right: -50px; transform: translateY(-50%); }
+
+    .showcase-info { }
+    .showcase-specs { margin-top: 48px; display: flex; flex-direction: column; gap: 1px; }
+    .spec-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 0; border-bottom: 1px solid rgba(148,177,200,0.1);
+    }
+    .spec-key { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(227,223,206,0.4); }
+    .spec-val { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--steel); }
+
+    /* ARCHITECTURE */
+    .architecture { background: linear-gradient(180deg, var(--void), rgba(26,9,5,1)); }
+    .arch-header { text-align: center; margin-bottom: 80px; }
+    .arch-flow {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; flex-wrap: wrap; position: relative; max-width: 900px; margin: 0 auto;
+    }
+    .arch-step {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; padding: 32px 24px;
+      background: var(--glass); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px); min-width: 160px;
+      transition: all 0.4s; cursor: none; position: relative;
+    }
+    .arch-step:hover { background: rgba(148,177,200,0.08); border-color: var(--steel); transform: translateY(-4px); }
+    .arch-step:hover .arch-icon { box-shadow: 0 0 30px rgba(148,177,200,0.3); }
+    .arch-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(76,5,12,0.4); border: 1px solid rgba(76,5,12,0.8);
+      display: flex; align-items: center; justify-content: center; transition: all 0.4s;
+    }
+    .arch-icon svg { width: 24px; height: 24px; stroke: var(--steel); fill: none; stroke-width: 1.5; }
+    .arch-label { font-family: 'Cormorant Garamond', serif; font-size: 16px; text-align: center; }
+    .arch-sub { font-size: 10px; color: rgba(227,223,206,0.4); letter-spacing: 1px; text-align: center; }
+    .arch-arrow {
+      color: var(--steel); font-size: 20px; opacity: 0.4; padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    /* FUTURE VISION */
+    .future { position: relative; overflow: hidden; }
+    .future-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at top right, rgba(76,5,12,0.15), transparent 60%); }
+    .future-header { text-align: center; margin-bottom: 80px; position: relative; z-index: 1; }
+    .future-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; position: relative; z-index: 1; }
+    .future-card {
+      padding: 48px 32px; border: 1px solid var(--glass-border);
+      background: var(--glass); backdrop-filter: blur(10px);
+      transition: all 0.4s; cursor: none; overflow: hidden; position: relative;
+    }
+    .future-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--steel), transparent);
+      transform: scaleX(0); transition: transform 0.4s;
+    }
+    .future-card:hover { transform: translateY(-6px); border-color: rgba(148,177,200,0.3); }
+    .future-card:hover::after { transform: scaleX(1); }
+    .future-year {
+      font-family: 'Space Mono', monospace; font-size: 11px;
+      color: rgba(148,177,200,0.4); margin-bottom: 20px;
+    }
+    .future-icon { font-size: 36px; margin-bottom: 20px; }
+    .future-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; margin-bottom: 12px; }
+    .future-text { font-size: 13px; color: rgba(227,223,206,0.5); line-height: 1.7; }
+
+    /* CONTACT */
+    .contact { background: radial-gradient(ellipse at bottom, rgba(76,5,12,0.12), var(--void)); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+    .contact-info .section-title { margin-bottom: 16px; }
+    .contact-desc { font-size: 15px; color: rgba(227,223,206,0.5); line-height: 1.8; margin-bottom: 48px; }
+    .contact-detail { display: flex; flex-direction: column; gap: 24px; }
+    .contact-item { display: flex; align-items: flex-start; gap: 16px; }
+    .contact-item-icon { width: 40px; height: 40px; border: 1px solid rgba(148,177,200,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .contact-item-icon svg { width: 18px; height: 18px; stroke: var(--steel); fill: none; stroke-width: 1.5; }
+    .contact-item-text strong { display: block; font-size: 12px; letter-spacing: 1px; margin-bottom: 4px; }
+    .contact-item-text span { font-size: 13px; color: rgba(227,223,206,0.5); }
+
+    .contact-form { display: flex; flex-direction: column; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(227,223,206,0.4); }
+    .form-input {
+      padding: 14px 18px; background: var(--glass); border: 1px solid var(--glass-border);
+      color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      backdrop-filter: blur(10px); transition: all 0.3s; outline: none;
+      -webkit-appearance: none; border-radius: 0;
+    }
+    .form-input:focus { border-color: var(--steel); box-shadow: 0 0 20px rgba(148,177,200,0.1); }
+    .form-input::placeholder { color: rgba(227,223,206,0.25); }
+    .form-select {
+      padding: 14px 18px; background: rgba(26,9,5,0.8); border: 1px solid var(--glass-border);
+      color: rgba(227,223,206,0.5); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      transition: all 0.3s; outline: none; border-radius: 0; cursor: none;
+    }
+    .form-select:focus { border-color: var(--steel); color: var(--cream); }
+    .form-select option { background: var(--void); }
+    .btn-submit {
+      padding: 16px 40px; background: var(--crimson); color: var(--cream);
+      border: none; font-family: 'DM Sans', sans-serif;
+      font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s; align-self: flex-start;
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+    .btn-submit:hover { background: #6B0810; transform: translateY(-2px); box-shadow: 0 20px 40px rgba(76,5,12,0.4); }
+    .btn-submit:hover::before { left: 100%; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(148,177,200,0.1); padding: 48px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+    }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; letter-spacing: 5px; }
+    .footer-logo span { color: var(--steel); }
+    .footer-copy { font-size: 11px; color: rgba(227,223,206,0.3); letter-spacing: 1px; }
+    .footer-socials { display: flex; gap: 20px; }
+    .social-link {
+      width: 36px; height: 36px; border: 1px solid rgba(148,177,200,0.2);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s; cursor: none;
+    }
+    .social-link:hover { border-color: var(--steel); background: rgba(148,177,200,0.1); }
+    .social-link svg { width: 14px; height: 14px; stroke: var(--cream); fill: none; stroke-width: 1.5; }
+
+    /* DIVIDER */
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border), transparent); margin: 0 48px; }
+
+    /* MOBILE NAV MENU */
+    .mobile-menu {
+      display: none; position: fixed; inset: 0; z-index: 99;
+      background: rgba(26,9,5,0.97); backdrop-filter: blur(30px);
+      flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-family: 'Cormorant Garamond', serif; font-size: 32px; color: var(--cream); text-decoration: none; letter-spacing: 4px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .future-cards { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      section { padding: 80px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 60px; }
+      .hero-device { display: none; }
+      .about-grid, .showcase-inner, .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .future-cards { grid-template-columns: 1fr; }
+      .arch-flow { flex-direction: column; }
+      .arch-arrow { transform: rotate(90deg); }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 24px; text-align: center; }
+      .hero-stats { gap: 20px; }
+      .divider { margin: 0 24px; }
+    }
+
+    /* FADE IN ANIMATION */
+    .fade-in {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+    .fade-in-delay-4 { transition-delay: 0.4s; }
+    .fade-in-delay-5 { transition-delay: 0.5s; }
+
+    /* SCAN LINE */
+    .scan-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px);
+    }
+
+    /* NOISE */
+    .noise-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 200px 200px;
+    }
+
+    /* LOADING */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999; background: var(--void);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    }
+    .loader-logo { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; letter-spacing: 10px; }
+    .loader-logo span { color: var(--steel); }
+    .loader-bar { width: 200px; height: 1px; background: rgba(148,177,200,0.2); position: relative; overflow: hidden; }
+    .loader-bar::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: var(--steel); animation: load-bar 1.8s ease forwards;
+    }
+    @keyframes load-bar { from{left:-100%} to{left:0%} }
+    .loader-text { font-size: 9px; letter-spacing: 4px; color: rgba(148,177,200,0.4); text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <!-- Overlays -->
+  <div class="scan-overlay"></div>
+  <div class="noise-overlay"></div>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-logo">SKIN<span>ERGY</span></div>
+    <div class="loader-bar"></div>
+    <div class="loader-text">Initializing AI Systems</div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#about" onclick="closeMobile()">About</a>
+    <a href="#features" onclick="closeMobile()">Features</a>
+    <a href="#device" onclick="closeMobile()">Device</a>
+    <a href="#architecture" onclick="closeMobile()">Technology</a>
+    <a href="#contact" onclick="closeMobile()">Contact</a>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">SKIN<span>ERGY</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#device">Device</a></li>
+      <li><a href="#architecture">Technology</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Order Now</button>
+    <button class="hamburger" id="hamburger" onclick="toggleMobile()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-grid max-w">
+      <div class="hero-content">
+        <div class="hero-tag fade-in">AI-Powered Burn Detection</div>
+        <h1 class="hero-title fade-in fade-in-delay-1">
+          The Future of<br><em>Burn Care</em><br>Is <span class="accent">Here.</span>
+        </h1>
+        <p class="hero-sub fade-in fade-in-delay-2">
+          SKINERGY combines ESP32-CAM computer vision, thermal sensing, and edge AI to detect burn severity in real time — delivering instant first-aid guidance directly to your device.
+        </p>
+        <div class="hero-ctas fade-in fade-in-delay-3">
+          <button class="btn-primary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Request Early Access</button>
+          <button class="btn-outline" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Explore Features</button>
+        </div>
+        <div class="hero-stats fade-in fade-in-delay-4">
+          <div class="stat">
+            <div class="stat-num">97%</div>
+            <div class="stat-label">Detection Accuracy</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">&lt;2s</div>
+            <div class="stat-label">Response Time</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">4G+</div>
+            <div class="stat-label">IoT Connectivity</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-device fade-in fade-in-delay-2">
+        <div class="device-ring device-ring-3"></div>
+        <div class="device-ring device-ring-1"></div>
+        <div class="device-ring device-ring-2"></div>
+        <div class="device-core">
+          <div class="device-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm0-14a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/></svg>
+          </div>
+          <div class="device-label">SKINERGY v1</div>
+          <div class="device-status">● System Active</div>
+        </div>
+        <div class="device-data-points">
+          <div class="data-point">
+            <div class="dp-label">Thermal</div>
+            <div class="dp-value">38.4°C</div>
+          </div>
+          <div class="data-point">
+            <div class="dp-label">Severity</div>
+            <div class="dp-value">Grade II</div>
+          </div>
+          <div class="data-point">
+            <div class="dp-label">AI Conf.</div>
+            <div class="dp-value">97.3%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="max-w about-grid">
+      <div class="about-text">
+        <span class="section-tag fade-in">About SKINERGY</span>
+        <h2 class="section-title fade-in fade-in-delay-1">Where <em>AI Meets</em><br>Emergency Medicine</h2>
+        <p class="fade-in fade-in-delay-2">SKINERGY is a compact, intelligent burn assessment device engineered for first responders, clinicians, and home care environments. It fuses thermal imaging with deep learning to classify burn wounds by severity — automatically.</p>
+        <p class="fade-in fade-in-delay-2">Powered by the ESP32-CAM microcontroller and proprietary AI models, SKINERGY transmits real-time data over IoT networks to a companion mobile app, alerting emergency services and guiding users through evidence-based first-aid protocols.</p>
+        <div class="about-highlights fade-in fade-in-delay-3">
+          <div class="highlight-item"><span class="highlight-num">01</span><span class="highlight-text">Real-time thermal burn mapping via infrared sensing</span></div>
+          <div class="highlight-item"><span class="highlight-num">02</span><span class="highlight-text">On-device AI inference — no cloud latency required</span></div>
+          <div class="highlight-item"><span class="highlight-num">03</span><span class="highlight-text">Instant emergency alerts to caregivers and services</span></div>
+          <div class="highlight-item"><span class="highlight-num">04</span><span class="highlight-text">Step-by-step first-aid guidance through mobile app</span></div>
+        </div>
+      </div>
+      <div class="about-visual fade-in fade-in-delay-2">
+        <svg class="circuit-svg" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M200 50 L200 150 M200 250 L200 350" stroke="#94B1C8" stroke-width="0.5"/>
+          <path d="M50 200 L150 200 M250 200 L350 200" stroke="#94B1C8" stroke-width="0.5"/>
+          <circle cx="200" cy="200" r="50" stroke="#94B1C8" stroke-width="0.5"/>
+          <circle cx="200" cy="200" r="80" stroke="#4C050C" stroke-width="0.5"/>
+          <circle cx="200" cy="50" r="5" fill="#94B1C8" opacity="0.5"/>
+          <circle cx="200" cy="350" r="5" fill="#94B1C8" opacity="0.5"/>
+          <circle cx="50" cy="200" r="5" fill="#94B1C8" opacity="0.5"/>
+          <circle cx="350" cy="200" r="5" fill="#94B1C8" opacity="0.5"/>
+          <path d="M120 120 L160 160 M240 240 L280 280" stroke="#4C050C" stroke-width="0.5"/>
+          <path d="M280 120 L240 160 M160 240 L120 280" stroke="#4C050C" stroke-width="0.5"/>
+          <rect x="185" y="185" width="30" height="30" stroke="#94B1C8" stroke-width="0.5" fill="none"/>
+        </svg>
+        <div class="about-card fade-in fade-in-delay-3">
+          <div class="about-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E3DFCE" stroke-width="1.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+          </div>
+          <div class="about-card-title">AI + IoT Healthcare</div>
+          <div class="about-card-text">SKINERGY represents a new paradigm in emergency care — intelligent, connected, and instant. Medical-grade assessment without the waiting room.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="max-w">
+      <div class="features-header">
+        <span class="section-tag fade-in">Core Capabilities</span>
+        <h2 class="section-title fade-in fade-in-delay-1">Engineered for the<br><em>Critical Moment</em></h2>
+      </div>
+      <div class="features-grid fade-in fade-in-delay-2">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1"/></svg>
+          </div>
+          <div class="feature-name">AI Burn Detection</div>
+          <div class="feature-desc">Computer vision models trained on thousands of clinical burn images classify wound severity from Grade I to Grade III in under two seconds.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+          </div>
+          <div class="feature-name">Thermal Temperature Analysis</div>
+          <div class="feature-desc">Infrared sensor array maps surface temperature gradients across the wound area, identifying depth of tissue damage with clinical precision.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="feature-name">Emergency Alerts</div>
+          <div class="feature-desc">Automatic SMS, push notifications, and emergency service pings triggered the moment a critical burn is detected. Every second matters.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">04</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.27 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 3.07 4.18 2 2 0 0 1 5 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="feature-name">Smart First Aid Guidance</div>
+          <div class="feature-desc">Evidence-based treatment protocols are surfaced instantly, walking users through correct wound management while emergency services are dispatched.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">05</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="feature-name">Mobile App Integration</div>
+          <div class="feature-desc">Dedicated iOS and Android companion app receives live data, displays thermal overlays, stores assessment history, and connects to telehealth providers.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">06</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M1.5 8.5 12 3l10.5 5.5-10.5 5.5L1.5 8.5z"/><path d="m1.5 14 10.5 5.5L22.5 14"/><path d="m1.5 11 10.5 5.5L22.5 11"/></svg>
+          </div>
+          <div class="feature-name">IoT Connectivity</div>
+          <div class="feature-desc">Seamless integration with hospital systems, smart home platforms, and wearable networks over WiFi, BLE, and cellular — built on open IoT standards.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- DEVICE SHOWCASE -->
+  <section class="showcase" id="device">
+    <div class="max-w showcase-inner">
+      <div class="showcase-display fade-in">
+        <div class="showcase-glow"></div>
+        <div class="showcase-device" id="showcase-device">
+          <div class="cam-circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/></svg>
+          </div>
+          <div class="thermal-bars">
+            <div class="t-bar"></div><div class="t-bar"></div><div class="t-bar"></div>
+            <div class="t-bar"></div><div class="t-bar"></div><div class="t-bar"></div>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;color:rgba(148,177,200,0.6);letter-spacing:2px;">ESP32-CAM</div>
+        </div>
+        <div class="showcase-badge">
+          <div class="dp-label">Processor</div>
+          <div class="dp-value">Xtensa® LX6</div>
+        </div>
+        <div class="showcase-badge">
+          <div class="dp-label">Thermal Res.</div>
+          <div class="dp-value">32×24 px</div>
+        </div>
+        <div class="showcase-badge">
+          <div class="dp-label">Wireless</div>
+          <div class="dp-value">802.11 b/g/n</div>
+        </div>
+      </div>
+      <div class="showcase-info fade-in fade-in-delay-1">
+        <span class="section-tag">Device Showcase</span>
+        <h2 class="section-title">Precision in<br>Your <em>Palm</em></h2>
+        <p style="color:rgba(227,223,206,0.55);font-size:15px;line-height:1.8;margin-bottom:16px;">The SKINERGY device packs clinical-grade thermal imaging, a 2MP OV2640 camera, and a dual-core AI processor into a form factor smaller than a deck of cards.</p>
+        <p style="color:rgba(227,223,206,0.55);font-size:15px;line-height:1.8;">Every component is medical-grade, IP67-rated, and engineered for one-handed operation in emergency conditions.</p>
+        <div class="showcase-specs">
+          <div class="spec-row"><span class="spec-key">Microcontroller</span><span class="spec-val">ESP32-S3</span></div>
+          <div class="spec-row"><span class="spec-key">Camera</span><span class="spec-val">OV2640 2MP</span></div>
+          <div class="spec-row"><span class="spec-key">Thermal Sensor</span><span class="spec-val">MLX90640</span></div>
+          <div class="spec-row"><span class="spec-key">Battery Life</span><span class="spec-val">12+ Hours</span></div>
+          <div class="spec-row"><span class="spec-key">Ingress Protection</span><span class="spec-val">IP67</span></div>
+          <div class="spec-row"><span class="spec-key">Connectivity</span><span class="spec-val">WiFi / BLE 5.0</span></div>
+          <div class="spec-row"><span class="spec-key">Dimensions</span><span class="spec-val">68 × 42 × 18mm</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ARCHITECTURE -->
+  <section class="architecture" id="architecture">
+    <div class="max-w">
+      <div class="arch-header">
+        <span class="section-tag fade-in">AI & IoT Architecture</span>
+        <h2 class="section-title fade-in fade-in-delay-1">From Scan to<br><em>Treatment</em> in Seconds</h2>
+      </div>
+      <div class="arch-flow fade-in fade-in-delay-2">
+        <div class="arch-step">
+          <div class="arch-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="arch-label">Device Capture</div>
+          <div class="arch-sub">Thermal + Visual</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">
+          <div class="arch-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="arch-label">Edge AI Analysis</div>
+          <div class="arch-sub">On-Device Inference</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">
+          <div class="arch-icon">
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="arch-label">Mobile App</div>
+          <div class="arch-sub">Data Visualization</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">
+          <div class="arch-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.27 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.18 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="arch-label">Emergency Response</div>
+          <div class="arch-sub">Alert + Guidance</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-step">
+          <div class="arch-icon">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div class="arch-label">Patient Outcome</div>
+          <div class="arch-sub">Improved Recovery</div>
+        </div>
+      </div>
+      <p style="text-align:center;color:rgba(227,223,206,0.35);font-size:12px;letter-spacing:2px;margin-top:48px;text-transform:uppercase;" class="fade-in fade-in-delay-3">End-to-end latency under 2 seconds — even without cellular signal</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FUTURE VISION -->
+  <section class="future" id="vision">
+    <div class="future-bg"></div>
+    <div class="max-w">
+      <div class="future-header">
+        <span class="section-tag fade-in">Future Vision</span>
+        <h2 class="section-title fade-in fade-in-delay-1">Reimagining<br><em>Healthcare</em> Everywhere</h2>
+        <p style="color:rgba(227,223,206,0.45);font-size:15px;max-width:560px;margin:0 auto;line-height:1.8;" class="fade-in fade-in-delay-2">SKINERGY is the first device in a broader platform. Our roadmap extends AI-assisted emergency care into every home, clinic, and connected environment on the planet.</p>
+      </div>
+      <div class="future-cards">
+        <div class="future-card fade-in">
+          <div class="future-year">Phase I — 2025</div>
+          <div class="future-icon">🏥</div>
+          <div class="future-title">Smart Hospitals</div>
+          <div class="future-text">Integration with hospital EHR systems and smart nursing stations. SKINERGY devices deployed at every bedside, automatically logging wound progression and flagging deterioration.</div>
+        </div>
+        <div class="future-card fade-in fade-in-delay-1">
+          <div class="future-year">Phase II — 2026</div>
+          <div class="future-icon">🏠</div>
+          <div class="future-title">Home Healthcare</div>
+          <div class="future-text">Consumer-grade SKINERGY Home Kit connects to smart home platforms. Family members monitor burn healing remotely, with automated teleconsultation triggers when anomalies are detected.</div>
+        </div>
+        <div class="future-card fade-in fade-in-delay-2">
+          <div class="future-year">Phase III — 2027</div>
+          <div class="future-icon">🤖</div>
+          <div class="future-title">AI Medical Companion</div>
+          <div class="future-text">SKINERGY evolves into a multimodal medical AI companion — capable of assessing wounds, monitoring vital signs, and providing personalized rehabilitation guidance through a wearable form factor.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="max-w contact-grid">
+      <div class="contact-info fade-in">
+        <span class="section-tag">Get Early Access</span>
+        <h2 class="section-title">Be First to<br><em>Experience</em><br>SKINERGY</h2>
+        <p class="contact-desc">We're onboarding a select group of hospitals, clinics, and research institutions for our pilot program. Apply now to join the future of emergency burn care.</p>
+        <div class="contact-detail">
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="contact-item-text">
+              <strong>Email</strong>
+              <span>research@skinergy.ai</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="contact-item-text">
+              <strong>Headquarters</strong>
+              <span>Cairo, Egypt · San Francisco, CA</span>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.27 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.18 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="contact-item-text">
+              <strong>Phone</strong>
+              <span>+20 100 000 0000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fade-in fade-in-delay-1">
+        <div class="contact-form" id="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-input" placeholder="Dr. Ahmed" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-input" placeholder="Hassan" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" placeholder="ahmed@hospital.eg" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-input" placeholder="+20 100 000 0000" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country / Region</label>
+            <select class="form-select">
+              <option value="">Select your country</option>
+              <option>Egypt</option>
+              <option>United States</option>
+              <option>United Kingdom</option>
+              <option>Saudi Arabia</option>
+              <option>UAE</option>
+              <option>Germany</option>
+              <option>France</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Organization Type</label>
+            <select class="form-select">
+              <option value="">Select organization type</option>
+              <option>Hospital / Clinic</option>
+              <option>Research Institution</option>
+              <option>First Responders</option>
+              <option>Home Healthcare</option>
+              <option>Investor / Partner</option>
+            </select>
+          </div>
+          <button class="btn-submit" onclick="handleSubmit()">Submit Application →</button>
+        </div>
+        <div id="form-success" style="display:none;text-align:center;padding:60px 40px;border:1px solid rgba(148,177,200,0.2);background:rgba(148,177,200,0.04);">
+          <div style="font-size:32px;margin-bottom:16px;">✦</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:12px;">Application Received</div>
+          <div style="color:rgba(227,223,206,0.5);font-size:13px;line-height:1.7;">Thank you for your interest in SKINERGY. Our team will be in touch within 48 hours.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">SKIN<span>ERGY</span></div>
+    <div class="footer-copy">© 2025 SKINERGY Technologies Inc. All rights reserved.</div>
+    <div class="footer-socials">
+      <a class="social-link" href="#" aria-label="Twitter">
+        <svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+      </a>
+      <a class="social-link" href="#" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <a class="social-link" href="#" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a class="social-link" href="#" aria-label="GitHub">
+        <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    // LOADER
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        loader.style.transition = 'opacity 0.8s ease';
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.display = 'none'; }, 800);
+      }, 1800);
+    });
+
+    // CURSOR
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+    function animRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animRing); }
+    animRing();
+    document.querySelectorAll('button, a, .feature-card, .future-card, .arch-step, .showcase-device').forEach(el => {
+      el.addEventListener('mouseenter', () => { ring.style.transform = 'translate(-50%,-50%) scale(1.8)'; ring.style.borderColor = 'rgba(148,177,200,0.8)'; });
+      el.addEventListener('mouseleave', () => { ring.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.borderColor = 'rgba(148,177,200,0.5)'; });
+    });
+
+    // MOBILE MENU
+    function toggleMobile() {
+      const m = document.getElementById('mobile-menu');
+      m.classList.toggle('open');
+    }
+    function closeMobile() {
+      document.getElementById('mobile-menu').classList.remove('open');
+    }
+
+    // INTERSECTION OBSERVER
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // 3D TILT on showcase device
+    const device = document.getElementById('showcase-device');
+    if (device) {
+      device.addEventListener('mousemove', e => {
+        const r = device.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        device.style.transform = `scale(1.04) rotateY(${x*20}deg) rotateX(${-y*20}deg) translateY(-8px)`;
+      });
+      device.addEventListener('mouseleave', () => { device.style.transform = ''; });
+    }
+
+    // FORM SUBMIT
+    function handleSubmit() {
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    }
+
+    // NAV ACTIVE
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      nav.style.background = window.scrollY > 50 ? 'rgba(26,9,5,0.95)' : 'rgba(26,9,5,0.7)';
+    });
+  </script>
+</body>
+</html>
